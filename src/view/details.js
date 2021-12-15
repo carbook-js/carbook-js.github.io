@@ -1,5 +1,6 @@
-import { getVehicleById } from '../api/car.js';
+import { deleteVehicle, getVehicleById } from '../api/car.js';
 import { html, until } from '../lib.js';
+import { getUserData } from '../util.js';
 import { spinner } from './common.js';
 
 const detailsTemplate = (carPromise) => html`
@@ -7,7 +8,7 @@ const detailsTemplate = (carPromise) => html`
     ${until(carPromise, spinner())}
 </section>`;
 
-const detailsPreview = (car) => html`
+const detailsPreview = (car, onDelete, isOwner) => html`
 <div class="wrapper">
     <div class="albumCover">
         <img src=${car.imgUrl}>
@@ -25,10 +26,10 @@ const detailsPreview = (car) => html`
         </div>
 
         <!-- Only for registered user and creator of the album-->
-        <div class="actionBtn">
+        ${isOwner ? html`<div class="actionBtn">
             <a href="/edit/${car.objectId}" class="edit">Edit</a>
-            <a href="javascript:vodi(0)" class="remove">Delete</a>
-        </div>
+            <a @click=${onDelete} href="javascript:vodi(0)" class="remove">Delete</a>
+        </div>` : null}
     </div>
 </div>`;
 
@@ -36,8 +37,19 @@ export function detailsPage(ctx){
     ctx.render(detailsTemplate(loadCar()));
 
     async function loadCar(){
+        const userData = await getUserData();
         const car = await getVehicleById(ctx.params.id);
+        const isOwner = userData.id == car.ownerId.objectId;
     
-        return detailsPreview(car);
+        return detailsPreview(car, onDelete, isOwner);
+
+        async function onDelete(){
+            const choice = confirm(`Are you sure you want to delete ${car.brand}`);
+
+            if(choice){
+                await deleteVehicle(car.objectId);
+                ctx.page.redirect('/catalog');
+            }
+        }
     }
 }
