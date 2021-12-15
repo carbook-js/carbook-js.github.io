@@ -1,4 +1,4 @@
-import { getVehicleById } from '../api/car.js';
+//import { getVehicleById } from '../api/car.js';
 import { html } from '../lib.js';
 
 const homeTemplate = () => html`
