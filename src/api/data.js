@@ -1,6 +1,7 @@
 import { getUserData } from "../util.js";
 
 export const endpoints = {
+    vehiclesSearch: (query) => `/classes/Automobile?where=${createQuery(query)}`,
     vehicles: '/classes/Automobile',
     vehicleDetails: (id) => `/classes/Automobile/${id}?include=ownerId`,
     vehicleById: '/classes/Automobile/',
