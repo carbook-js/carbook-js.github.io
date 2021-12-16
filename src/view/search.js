@@ -5,7 +5,7 @@ import { spinner } from "./common.js";
 
 const searchTemplate = (searchPromise, onSearch, search = '') => html`
 <section id="searchPage">
-    <h1>Search by Name</h1>
+    <h1>Search by Brand</h1>
 
     <div class="search">
         <form @submit=${onSearch}>
@@ -46,8 +46,9 @@ const searchCard = (car) => html`<div class="card-box">
 
 export function searchPage(ctx) {
     const query = parseQuery(ctx.querystring);
+    const queryCode = ctx.querystring
     
-    ctx.render(searchTemplate(loadSearch(query), onSearch, query.search));
+    ctx.render(searchTemplate(loadSearch(queryCode), onSearch, query.search));
 
     function onSearch(event) {
         event.preventDefault();
@@ -55,6 +56,10 @@ export function searchPage(ctx) {
         const formData = new FormData(event.target);
 
         const search = formData.get('search');
+
+        if(search == ''){
+            return alert('Empty field.');
+        }
 
         if (search) {
             ctx.page.redirect(`/search?search=${encodeURIComponent(search)}`)
@@ -65,11 +70,11 @@ export function searchPage(ctx) {
 }
 
 async function loadSearch(search = ''){
-    const { cars } = await getVehiclesSearch(search);
+    const {results: cars} = await getVehiclesSearch(search);
 
     if(cars.length == 0){
         return html`<p class="no-result">No result.</p>`;
     }else {
-        return cars.map(searchCard)
+        return cars.map(searchCard);
     }
 }
